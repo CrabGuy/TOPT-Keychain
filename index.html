@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOPT</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .timer-container {
+            background: var(--dark);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--success), var(--warning), var(--danger));
+            transition: width 1s linear;
+            border-radius: 10px;
+        }
+
+        .accounts-container {
+            margin-top: 30px;
+        }
+
+        .accounts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .add-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .account-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .account-card {
+            background: var(--dark);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .account-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .account-code {
+            font-size: 2rem;
+            letter-spacing: 5px;
+            text-align: center;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: var(--border-radius);
+        }
+
+        .account-progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .account-progress-bar {
+            height: 100%;
+            transition: width 1s linear;
+        }
+
+        .delete-btn {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--light);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: var(--secondary);
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 1rem;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: #2980b9;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            grid-column: 1 / -1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .account-list {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .account-code {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TOPT</h1>
+            <p>Generate and manage multiple Time-Based One-Time Passwords</p>
+        </header>
+
+        <div class="timer-container">
+            <div class="timer" id="epoch-timer">30</div>
+            <div class="progress-bar">
+                <div class="progress" id="epoch-progress" style="width: 100%;"></div>
+            </div>
+        </div>
+
+        <div class="accounts-container">
+            <div class="accounts-header">
+                <h2>Your TOTP Accounts</h2>
+                <button class="add-btn" id="add-account-btn">
+                    <span>+</span> Add Account
+                </button>
+            </div>
+
+            <div class="account-list" id="account-list">
+                <div class="empty-state">
+                    <p>No accounts added yet. Click "Add Account" to get started.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Use</h3>
+            <ul>
+                <li>Click "Add Account" to register a new TOTP service</li>
+                <li>Enter the service name and your secret key (usually provided as a QR code)</li>
+                <li>Your TOTP codes are generated and stored only in your browser</li>
+                <li>All data is saved locally - nothing is sent to any server</li>
+                <li>Codes automatically refresh every 30 seconds</li>
+                <li>Delete accounts when no longer needed</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="modal" id="add-account-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Account</h2>
+                <button class="close-btn" id="close-modal-btn">&times;</button>
+            </div>
+            <form id="add-account-form">
+                <div class="form-group">
+                    <label for="account-name">Service Name</label>
+                    <input type="text" id="account-name" placeholder="e.g., Google, GitHub, Facebook" required>
+                </div>
+                <div class="form-group">
+                    <label for="secret-key">Secret Key (Base32)</label>
+                    <input type="text" id="secret-key" placeholder="Enter your base32 secret key" required>
+                </div>
+                <button type="submit" class="submit-btn">Add Account</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>Secure TOTP Generator | All data stored locally in your browser</p>
+    </footer>
+
+    <script>
+        class TOTPGenerator {
+            static base32ToBytes(base32) {
+                const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+                base32 = base32.replace(/=+$/, '').toUpperCase();
+                let bytes = [];
+                let buffer = 0;
+                let bitsLeft = 0;
+                
+                for (let i = 0; i < base32.length; i++) {
+                    const char = base32.charAt(i);
+                    const index = base32Chars.indexOf(char);
+                    
+                    if (index === -1) {
+                        throw new Error(`Invalid Base32 character: ${char}`);
+                    }
+                    
+                    buffer = (buffer << 5) | index;
+                    bitsLeft += 5;
+                    
+                    if (bitsLeft >= 8) {
+                        bytes.push((buffer >>> (bitsLeft - 8)) & 0xFF);
+                        bitsLeft -= 8;
+                    }
+                }
+                
+                return new Uint8Array(bytes);
+            }
+
+            static generateTOTP(secret, timeStep = 30, digits = 6) {
+                const now = Math.floor(Date.now() / 1000);
+                const counter = Math.floor(now / timeStep);
+                
+                const key = TOTPGenerator.base32ToBytes(secret);
+                
+                const counterBytes = new Uint8Array(8);
+                let tempCounter = counter;
+                for (let i = 7; i >= 0; i--) {
+                    counterBytes[i] = tempCounter & 0xFF;
+                    tempCounter = Math.floor(tempCounter / 256);
+                }
+                
+                return crypto.subtle.importKey(
+                    'raw',
+                    key,
+                    { name: 'HMAC', hash: 'SHA-1' },
+                    false,
+                    ['sign']
+                ).then(cryptoKey => {
+                    return crypto.subtle.sign('HMAC', cryptoKey, counterBytes);
+                }).then(signature => {
+                    const sigArray = new Uint8Array(signature);
+                    
+                    const offset = sigArray[sigArray.length - 1] & 0x0F;
+                    const binCode = (
+                        (sigArray[offset]     & 0x7F) << 24 |
+                        (sigArray[offset + 1] & 0xFF) << 16 |
+                        (sigArray[offset + 2] & 0xFF) <<  8 |
+                        (sigArray[offset + 3] & 0xFF)
+                    ) >>> 0;
+                    
+                    const otp = binCode % Math.pow(10, digits);
+                    return otp.toString().padStart(digits, '0');
+                });
+            }
+        }
+
+        const state = {
+            accounts: JSON.parse(localStorage.getItem('totpAccounts')) || []
+        };
+
+        const elements = {
+            accountList: document.getElementById('account-list'),
+            epochTimer: document.getElementById('epoch-timer'),
+            epochProgress: document.getElementById('epoch-progress'),
+            addAccountBtn: document.getElementById('add-account-btn'),
+            addAccountModal: document.getElementById('add-account-modal'),
+            closeModalBtn: document.getElementById('close-modal-btn'),
+            addAccountForm: document.getElementById('add-account-form'),
+            accountName: document.getElementById('account-name'),
+            secretKey: document.getElementById('secret-key')
+        };
+
+        function init() {
+            renderAccounts();
+            startEpochTimer();
+            setupEventListeners();
+        }
+
+        function renderAccounts() {
+            elements.accountList.innerHTML = '';
+            
+            if (state.accounts.length === 0) {
+                elements.accountList.innerHTML = `
+                    <div class="empty-state">
+                        <p>No accounts added yet. Click "Add Account" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            state.accounts.forEach((account, index) => {
+                const accountCard = document.createElement('div');
+                accountCard.className = 'account-card';
+                accountCard.innerHTML = `
+                    <div class="account-header">
+                        <div class="account-name">${account.name}</div>
+                        <button class="delete-btn" data-index="${index}">✕</button>
+                    </div>
+                    <div class="account-code" id="code-${index}">------</div>
+                    <div class="account-progress">
+                        <div class="account-progress-bar" id="progress-${index}" style="width: 100%; background-color: #2ecc71;"></div>
+                    </div>
+                `;
+                elements.accountList.appendChild(accountCard);
+                
+                generateAndDisplayCode(index);
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    deleteAccount(index);
+                });
+            });
+        }
+
+        function generateAndDisplayCode(index) {
+            const account = state.accounts[index];
+            
+            TOTPGenerator.generateTOTP(account.secret)
+                .then(code => {
+                    document.getElementById(`code-${index}`).textContent = code;
+                })
+                .catch(error => {
+                    console.error('Error generating TOTP:', error);
+                    document.getElementById(`code-${index}`).textContent = 'ERROR';
+                    document.getElementById(`progress-${index}`).style.backgroundColor = '#e74c3c';
+                });
+        }
+
+        function startEpochTimer() {
+            function updateTimer() {
+                const now = Date.now();
+                const seconds = Math.floor(now / 1000);
+                const timeRemaining = 30 - (seconds % 30);
+                
+                elements.epochTimer.textContent = timeRemaining;
+                
+                const progressPercent = (timeRemaining / 30) * 100;
+                elements.epochProgress.style.width = `${progressPercent}%`;
+                
+                if (timeRemaining <= 10) {
+                    elements.epochProgress.style.background = 'linear-gradient(to right, #f39c12, #e74c3c)';
+                } else if (timeRemaining <= 20) {
+                    elements.epochProgress.style.background = 'linear-gradient(to right, #2ecc71, #f39c12)';
+                } else {
+                    elements.epochProgress.style.background = 'linear-gradient(to right, #3498db, #2ecc71)';
+                }
+                
+                state.accounts.forEach((_, index) => {
+                    const progressBar = document.getElementById(`progress-${index}`);
+                    if (progressBar) {
+                        progressBar.style.width = `${progressPercent}%`;
+                        
+                        if (timeRemaining <= 10) {
+                            progressBar.style.backgroundColor = '#e74c3c';
+                        } else if (timeRemaining <= 20) {
+                            progressBar.style.backgroundColor = '#f39c12';
+                        } else {
+                            progressBar.style.backgroundColor = '#2ecc71';
+                        }
+                    }
+                });
+                
+                if (timeRemaining === 30) {
+                    state.accounts.forEach((_, index) => {
+                        generateAndDisplayCode(index);
+                    });
+                }
+            }
+            
+            updateTimer();
+            
+            setInterval(updateTimer, 1000);
+        }
+
+        function addAccount(name, secret) {
+            if (!name || !secret) return;
+            
+            state.accounts.push({
+                name,
+            });
+            
+            localStorage.setItem('totpAccounts', JSON.stringify(state.accounts));
+            
+            renderAccounts();
+            
+            elements.addAccountModal.classList.remove('active');
+            elements.addAccountForm.reset();
+        }
+
+        function deleteAccount(index) {
+            state.accounts.splice(index, 1);
+            localStorage.setItem('totpAccounts', JSON.stringify(state.accounts));
+            renderAccounts();
+        }
+
+        function setupEventListeners() {
+            elements.addAccountBtn.addEventListener('click', () => {
+                elements.addAccountModal.classList.add('active');
+            });
+            
+            elements.closeModalBtn.addEventListener('click', () => {
+                elements.addAccountModal.classList.remove('active');
+            });
+            
+            elements.addAccountModal.addEventListener('click', (e) => {
+                if (e.target === elements.addAccountModal) {
+                    elements.addAccountModal.classList.remove('active');
+                }
+            });
+            
+            elements.addAccountForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = elements.accountName.value.trim();
+                const secret = elements.secretKey.value.trim();
+                addAccount(name, secret);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
